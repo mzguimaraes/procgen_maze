@@ -30,7 +30,7 @@ public class CameraCenterTiles : MonoBehaviour {
 		float zAvg = (zMin + zMax) / 2;
 
 		//calculate ortho size that would put all tiles in view
-		cam.orthographicSize = Mathf.Max(xMax - xAvg, zMax - zAvg) + 10; //Add 10 bc this was clipping it a bit
+		cam.orthographicSize = Mathf.Max(xMax - xAvg, zMax - zAvg) + 5; //Add 5 bc this was clipping it a bit
 
 		transform.position = new Vector3(xAvg, transform.position.y, zAvg);
 	}

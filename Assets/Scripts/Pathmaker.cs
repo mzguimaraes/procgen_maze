@@ -11,17 +11,21 @@ public class Pathmaker : MonoBehaviour {
 
 	public Transform floorPrefab;
 	public Transform pathmakerSpherePrefab;
-	public int globalTileMax = 500;
+	public Transform treasureChestPrefab;
+	public Transform staircasePrefab;
+	public Transform demonPrefab;
+	public int globalTileMax = 300;
 
 	private int counterMax = 50;
-	private float roomProbability = 5f;
+	private float roomProbability = 5f; //percentage
 
 	private float tileDim = 5f;
 
 	void Start () {
-		//if this is the initial Pathmaker, add it to allPathmakers
+		//if this is the initial Pathmaker, add it to allPathmakers and spawn an Entrance tile
 		if (allPathmakers.Count == 0) {
 			allPathmakers.Add(transform);
+			Instantiate(staircasePrefab, transform.position + new Vector3(0f, 1.5f, 0f), Quaternion.Euler(-180f, 90f, 90f));
 		}
 
 		counterMax = Random.Range(30, 100);
@@ -32,6 +36,7 @@ public class Pathmaker : MonoBehaviour {
 	void connect(int xPos, int zPos) {
 		//draws a hallway between Pathmaker position on call and the point described by (xPos, zPos)
 		//moves Pathmaker to (xPos, zPos)
+		Debug.Log("connect(" + xPos + ", " + zPos + ")");
 		for ( ; xPos > 0; xPos --) {
 			if (!Physics.Raycast(transform.position, -transform.up)) {
 				allTiles.Add(Instantiate(floorPrefab, transform.position - transform.up, Quaternion.identity));
@@ -48,7 +53,7 @@ public class Pathmaker : MonoBehaviour {
 
 	}
 
-	void spawnRoom() {
+	void spawnRoom(bool isTreasureRoom = false) {
 
 		Vector3 entrancePos = transform.position;
 
@@ -85,8 +90,12 @@ public class Pathmaker : MonoBehaviour {
 		for (int i = 0; i < roomZ; i ++) {
 
 			for (int j = 0; j < roomX; j ++) {
-				if (!Physics.Raycast(transform.position, -transform.up)) {
-					allTiles.Add(Instantiate(floorPrefab, transform.position - transform.up, Quaternion.identity));
+				allTiles.Add(Instantiate(floorPrefab, transform.position - transform.up, Quaternion.identity));
+				if (isTreasureRoom && Random.Range(1, 100) <= 50) {
+					Instantiate(treasureChestPrefab, transform.position + new Vector3(0f, 2.25f, 0f), Quaternion.Euler(180f, -90f, -90f));
+				}
+				else if (Random.Range(1, 100) <= 50) {
+					Instantiate(demonPrefab, transform.position, Quaternion.Euler(-90f, 0f, 180f));
 				}
 				transform.Translate(tileDim, 0f, 0f);
 			}
@@ -158,7 +167,7 @@ public class Pathmaker : MonoBehaviour {
 		}
 		else {
 			Debug.Log("Tiles created: " + allTiles.Count);
-			spawnRoom();
+			spawnRoom(true);
 			if (allTiles.Count < 100) {
 				allPathmakers.Add(Instantiate(pathmakerSpherePrefab, transform.position, transform.rotation));
 			}
